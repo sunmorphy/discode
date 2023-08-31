@@ -1,4 +1,8 @@
 import { register } from "../../utils/api";
+import {
+  hideLoadingActionCreator,
+  showLoadingActionCreator,
+} from "../loading/action";
 
 const UserActionType = {
   RECEIVE_USERS: "RECEIVE_USERS",
@@ -14,11 +18,14 @@ function receiveUsersActionCreator(users) {
 }
 
 function asyncRegisterUser({ name, email, password }) {
-  return async () => {
+  return async (dispatch) => {
+    dispatch(showLoadingActionCreator());
     try {
       await register({ name, email, password });
     } catch (error) {
-      alert(error.message);
+      throw error.message;
+    } finally {
+      dispatch(hideLoadingActionCreator());
     }
   };
 }

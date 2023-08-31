@@ -21,3 +21,29 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+
+            {authUser ? (
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <HomePage
+                      setLoginModal={setShowLoginModal}
+                      setAddThreadModal={setShowAddTreadModal}
+                    />
+                  }
+                />
+                <Route
+                  path="/threads/:id"
+                  element={<DetailPage setLoginModal={setShowLoginModal} />}
+                />
+                <Route path="/*" element={<NotFound />} />
+              </Routes>
+            ) : (
+              <Routes>
+                <Route path="/login" element={<div></div>} />
+                <Route path="/register" element={<div></div>} />
+              </Routes>
+            )}

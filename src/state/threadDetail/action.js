@@ -5,6 +5,10 @@ import {
   voteThreadComment,
   VoteType,
 } from "../../utils/api";
+import {
+  hideLoadingActionCreator,
+  showLoadingActionCreator,
+} from "../loading/action";
 
 const ThreadDetailActionType = {
   RECEIVE_THREAD_DETAIL: "RECEIVE_THREAD_DETAIL",
@@ -14,11 +18,11 @@ const ThreadDetailActionType = {
   ADD_COMMENT_THREAD_DETAIL: "ADD_COMMENT_THREAD_DETAIL",
 };
 
-function receiveThreadDetailActionCreator(threadDetail) {
+function receiveThreadDetailActionCreator(detailThread) {
   return {
     type: ThreadDetailActionType.RECEIVE_THREAD_DETAIL,
     payload: {
-      threadDetail,
+      detailThread,
     },
   };
 }
@@ -39,11 +43,16 @@ function toggleVoteThreadDetailActionCreator({ userId, isUpVote }) {
   };
 }
 
-function toggleVoteCommentThreadDetailActionCreator({ userId, isUpVote }) {
+function toggleVoteCommentThreadDetailActionCreator({
+  userId,
+  commentId,
+  isUpVote,
+}) {
   return {
     type: ThreadDetailActionType.TOGGLE_VOTE_COMMENT_THREAD_DETAIL,
     payload: {
       userId,
+      commentId,
       isUpVote,
     },
   };
@@ -58,84 +67,107 @@ function addCommentThreadDetailActionCreator({ comment }) {
   };
 }
 
-async function asyncReceiveThreadDetail(threadId) {
+function asyncReceiveThreadDetail(threadId) {
   return async (dispatch) => {
+    dispatch(showLoadingActionCreator());
     dispatch(clearThreadDetailActionCreator());
     try {
-      const threadDetail = await getDetailThread({ threadId });
-      dispatch(receiveThreadDetailActionCreator(threadDetail));
-    } catch (e) {
-      alert(e.message);
+      const detailThread = await getDetailThread({ threadId });
+      dispatch(receiveThreadDetailActionCreator(detailThread));
+    } catch (error) {
+      throw error.message;
+    } finally {
+      dispatch(hideLoadingActionCreator());
     }
   };
 }
 
-async function asyncToggleVoteThreadDetail(isUpVote) {
+function asyncToggleVoteThreadDetail({ isUpVote }) {
   return async (dispatch, getState) => {
-    const { auth, threadDetail } = getState();
+    const { authUser, detailThread } = getState();
     let voteType = VoteType.UP_VOTE;
-
-    if (!isUpVote) {
-      voteType = VoteType.DOWN_VOTE;
-    }
 
     if (isUpVote === null) {
       voteType = VoteType.NEUTRALIZE_VOTE;
+    } else if (!isUpVote) {
+      voteType = VoteType.DOWN_VOTE;
     }
 
+    dispatch(
+      toggleVoteThreadDetailActionCreator({
+        userId: authUser.id,
+        isUpVote,
+      }),
+    );
+
     try {
-      dispatch(
-        toggleVoteThreadDetailActionCreator({ userId: auth.id, isUpVote }),
-      );
       await voteThread({
-        threadId: threadDetail.id,
+        threadId: detailThread.id,
         voteType,
       });
-    } catch (e) {
-      alert(e.message);
+    } catch (error) {
+      dispatch(
+        toggleVoteThreadDetailActionCreator({
+          userId: authUser.id,
+          isUpVote,
+        }),
+      );
+      throw error.message;
     }
   };
 }
 
-async function asyncToggleVoteCommentThreadDetail({ commentId, isUpVote }) {
+function asyncToggleVoteCommentThreadDetail({ commentId, isUpVote }) {
   return async (dispatch, getState) => {
-    const { auth, threadDetail } = getState();
+    const { authUser, detailThread } = getState();
     let voteType = VoteType.UP_VOTE;
-
-    if (!isUpVote) {
-      voteType = VoteType.DOWN_VOTE;
-    }
 
     if (isUpVote === null) {
       voteType = VoteType.NEUTRALIZE_VOTE;
+    } else if (!isUpVote) {
+      voteType = VoteType.DOWN_VOTE;
     }
 
+    dispatch(
+      toggleVoteCommentThreadDetailActionCreator({
+        userId: authUser.id,
+        commentId,
+        isUpVote,
+      }),
+    );
+
     try {
-      dispatch(
-        toggleVoteThreadDetailActionCreator({ userId: auth.id, isUpVote }),
-      );
       await voteThreadComment({
-        threadId: threadDetail.id,
+        threadId: detailThread.id,
         commentId,
         voteType,
       });
-    } catch (e) {
-      alert(e.message);
+    } catch (error) {
+      dispatch(
+        toggleVoteCommentThreadDetailActionCreator({
+          userId: authUser.id,
+          commentId,
+          isUpVote,
+        }),
+      );
+      throw error.message;
     }
   };
 }
 
-async function asyncAddCommentThreadDetail({ content }) {
-  return async (dispatch, getState) => {
-    const { threadDetail } = getState();
+function asyncAddCommentThreadDetail({ threadId, content }) {
+  return async (dispatch) => {
+    dispatch(showLoadingActionCreator());
     try {
       const comment = await createComment({
-        threadId: threadDetail.id,
+        threadId,
         content,
       });
       dispatch(addCommentThreadDetailActionCreator({ comment }));
-    } catch (e) {
-      alert(e.message);
+    } catch (error) {
+      throw error.message;
+    } finally {
+      dispatch(hideLoadingActionCreator());
     }
   };
 }

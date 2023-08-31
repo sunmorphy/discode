@@ -2,7 +2,7 @@ const BASE_URL = "https://forum-api.dicoding.dev/v1";
 const VoteType = {
   UP_VOTE: "up-vote",
   DOWN_VOTE: "down-vote",
-  NEUTRALIZE_VOTE: "neutralize-vote",
+  NEUTRALIZE_VOTE: "neutral-vote",
 };
 
 async function _fetchWithAuth(url, options = {}) {
@@ -237,88 +237,6 @@ async function voteThread({ threadId, voteType }) {
   return vote;
 }
 
-/*
-
-async function upVoteThread({ threadId }) {
-  const response = await _fetchWithAuth(
-    `${BASE_URL}/threads/${threadId}/up-vote`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  const responseJson = await response.json();
-
-  const { status, message } = responseJson;
-
-  if (status !== "success") {
-    throw new Error(message);
-  }
-
-  const {
-    data: { user },
-  } = responseJson;
-
-  return user;
-}
-
-async function downVoteThread({ threadId }) {
-  const response = await _fetchWithAuth(
-    `${BASE_URL}/threads/${threadId}/down-vote`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  const responseJson = await response.json();
-
-  const { status, message } = responseJson;
-
-  if (status !== "success") {
-    throw new Error(message);
-  }
-
-  const {
-    data: { user },
-  } = responseJson;
-
-  return user;
-}
-
-async function neutralizeVoteThread({ threadId }) {
-  const response = await _fetchWithAuth(
-    `${BASE_URL}/threads/${threadId}/neutral-vote`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  const responseJson = await response.json();
-
-  const { status, message } = responseJson;
-
-  if (status !== "success") {
-    throw new Error(message);
-  }
-
-  const {
-    data: { user },
-  } = responseJson;
-
-  return user;
-}
-
- */
-
 async function voteThreadComment({ threadId, commentId, voteType }) {
   const response = await _fetchWithAuth(
     `${BASE_URL}/threads/${threadId}/comments/${commentId}/${voteType}`,
@@ -345,89 +263,7 @@ async function voteThreadComment({ threadId, commentId, voteType }) {
   return user;
 }
 
-/*
-
-async function upVoteComment({ threadId, commentId }) {
-  const response = await _fetchWithAuth(
-    `${BASE_URL}/threads/${threadId}/comments/${commentId}/up-vote`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  const responseJson = await response.json();
-
-  const { status, message } = responseJson;
-
-  if (status !== "success") {
-    throw new Error(message);
-  }
-
-  const {
-    data: { user },
-  } = responseJson;
-
-  return user;
-}
-
-async function downVoteComment({ threadId, commentId }) {
-  const response = await _fetchWithAuth(
-    `${BASE_URL}/threads/${threadId}/comments/${commentId}/down-vote`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  const responseJson = await response.json();
-
-  const { status, message } = responseJson;
-
-  if (status !== "success") {
-    throw new Error(message);
-  }
-
-  const {
-    data: { user },
-  } = responseJson;
-
-  return user;
-}
-
-async function neutralizeVoteComment({ threadId, commentId }) {
-  const response = await _fetchWithAuth(
-    `${BASE_URL}/threads/${threadId}/comments/${commentId}/neutral-vote`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-
-  const responseJson = await response.json();
-
-  const { status, message } = responseJson;
-
-  if (status !== "success") {
-    throw new Error(message);
-  }
-
-  const {
-    data: { user },
-  } = responseJson;
-
-  return user;
-}
-
- */
-
-// Leaderboards Apis
+// LeaderboardList Apis
 async function getLeaderboards() {
   const response = await fetch(`${BASE_URL}/leaderboards`);
 

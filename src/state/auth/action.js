@@ -1,53 +1,61 @@
 import { getProfile, login, putAccessToken } from "../../utils/api";
+import {
+  hideLoadingActionCreator,
+  showLoadingActionCreator,
+} from "../loading/action";
 
 const AuthActionType = {
-  SET_AUTH: "SET_AUTH",
-  UNSET_AUTH: "UNSET_AUTH",
+  SET_AUTH_USER: "SET_AUTH_USER",
+  UNSET_AUTH_USER: "UNSET_AUTH_USER",
 };
 
-function setAuthActionCreator(auth) {
+function setAuthUserActionCreator(authUser) {
   return {
-    type: AuthActionType.SET_AUTH,
+    type: AuthActionType.SET_AUTH_USER,
     payload: {
-      auth,
+      authUser: authUser,
     },
   };
 }
 
-function unsetAuthActionCreator() {
+function unsetAuthUserActionCreator() {
   return {
-    type: AuthActionType.SET_AUTH,
+    type: AuthActionType.UNSET_AUTH_USER,
     payload: {
-      auth: null,
+      authUser: null,
     },
   };
 }
 
-function asyncSetAuth({ email, password }) {
+function asyncSetAuthUser({ email, password }) {
   return async (dispatch) => {
+    dispatch(showLoadingActionCreator());
+
     try {
       const token = await login({ email, password });
       putAccessToken(token);
       const authUser = await getProfile();
 
-      dispatch(setAuthActionCreator(authUser));
+      dispatch(setAuthUserActionCreator(authUser));
     } catch (error) {
-      alert(error.message);
+      throw error.message;
+    } finally {
+      dispatch(hideLoadingActionCreator());
     }
   };
 }
 
 function asyncUnsetAuthUser() {
   return (dispatch) => {
-    dispatch(unsetAuthActionCreator());
+    dispatch(unsetAuthUserActionCreator());
     putAccessToken("");
   };
 }
 
 export {
   AuthActionType,
-  setAuthActionCreator,
-  unsetAuthActionCreator,
-  asyncSetAuth,
+  setAuthUserActionCreator,
+  unsetAuthUserActionCreator,
+  asyncSetAuthUser,
   asyncUnsetAuthUser,
 };

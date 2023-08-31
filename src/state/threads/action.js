@@ -1,4 +1,7 @@
 import { createThread, voteThread, VoteType } from "../../utils/api";
+import { addCategoriesActionCreator } from "../categories/action";
+import { addTempThreadActionCreator } from "../tempThreads/action";
+import {hideLoadingActionCreator, showLoadingActionCreator} from "../loading/action";
 
 const ThreadActionType = {
   RECEIVE_THREADS: "RECEIVE_THREADS",
@@ -7,13 +10,11 @@ const ThreadActionType = {
   ADD_THREAD: "ADD_THREAD",
 };
 
-function addThreadActionCreator({ title, body, category }) {
+function addThreadActionCreator(thread) {
   return {
     type: ThreadActionType.ADD_THREAD,
     payload: {
-      title,
-      body,
-      category,
+      thread,
     },
   };
 }
@@ -50,33 +51,50 @@ function toggleVoteThreadActionCreator({ userId, threadId, isUpVote }) {
 
 function asyncAddThread({ title, body, category = "" }) {
   return async (dispatch) => {
+    dispatch(showLoadingActionCreator())
     try {
       const thread = await createThread({ title, body, category });
       dispatch(addThreadActionCreator(thread));
+      dispatch(addTempThreadActionCreator(thread));
+      dispatch(addCategoriesActionCreator(thread.category));
     } catch (error) {
-      alert(error.message);
+      throw error.message;
+    } finally {
+      dispatch(hideLoadingActionCreator())
     }
   };
 }
 
-async function asyncToggleVoteThread({ threadId, isUpVote }) {
+function asyncToggleVoteThread({ threadId, isUpVote }) {
   return async (dispatch, getState) => {
-    const { auth } = getState();
+    const { authUser } = getState();
     let voteType = VoteType.UP_VOTE;
-
-    if (!isUpVote) {
-      voteType = VoteType.DOWN_VOTE;
-    }
 
     if (isUpVote === null) {
       voteType = VoteType.NEUTRALIZE_VOTE;
+    } else if (!isUpVote) {
+      voteType = VoteType.DOWN_VOTE;
     }
 
+    dispatch(
+      toggleVoteThreadActionCreator({
+        userId: authUser.id,
+        threadId,
+        isUpVote,
+      }),
+    );
+
     try {
-      dispatch(toggleVoteThreadActionCreator({ userId: auth.id, isUpVote }));
       await voteThread({ threadId, voteType });
-    } catch (e) {
-      alert(e.message);
+    } catch (error) {
+      dispatch(
+        toggleVoteThreadActionCreator({
+          userId: authUser.id,
+          threadId,
+          isUpVote,
+        }),
+      );
+      throw error.message;
     }
   };
 }
