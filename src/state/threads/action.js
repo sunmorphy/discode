@@ -1,7 +1,10 @@
-import { createThread, voteThread, VoteType } from "../../utils/api";
+import api from "../../utils/api";
 import { addCategoriesActionCreator } from "../categories/action";
 import { addTempThreadActionCreator } from "../tempThreads/action";
-import {hideLoadingActionCreator, showLoadingActionCreator} from "../loading/action";
+import {
+  hideLoadingActionCreator,
+  showLoadingActionCreator,
+} from "../loading/action";
 
 const ThreadActionType = {
   RECEIVE_THREADS: "RECEIVE_THREADS",
@@ -51,16 +54,16 @@ function toggleVoteThreadActionCreator({ userId, threadId, isUpVote }) {
 
 function asyncAddThread({ title, body, category = "" }) {
   return async (dispatch) => {
-    dispatch(showLoadingActionCreator())
+    dispatch(showLoadingActionCreator());
     try {
-      const thread = await createThread({ title, body, category });
+      const thread = await api.createThread({ title, body, category });
       dispatch(addThreadActionCreator(thread));
       dispatch(addTempThreadActionCreator(thread));
       dispatch(addCategoriesActionCreator(thread.category));
     } catch (error) {
       throw error.message;
     } finally {
-      dispatch(hideLoadingActionCreator())
+      dispatch(hideLoadingActionCreator());
     }
   };
 }
@@ -68,12 +71,12 @@ function asyncAddThread({ title, body, category = "" }) {
 function asyncToggleVoteThread({ threadId, isUpVote }) {
   return async (dispatch, getState) => {
     const { authUser } = getState();
-    let voteType = VoteType.UP_VOTE;
+    let voteType = api.VoteType.UP_VOTE;
 
     if (isUpVote === null) {
-      voteType = VoteType.NEUTRALIZE_VOTE;
+      voteType = api.VoteType.NEUTRALIZE_VOTE;
     } else if (!isUpVote) {
-      voteType = VoteType.DOWN_VOTE;
+      voteType = api.VoteType.DOWN_VOTE;
     }
 
     dispatch(
@@ -85,7 +88,7 @@ function asyncToggleVoteThread({ threadId, isUpVote }) {
     );
 
     try {
-      await voteThread({ threadId, voteType });
+      await api.voteThread({ threadId, voteType });
     } catch (error) {
       dispatch(
         toggleVoteThreadActionCreator({

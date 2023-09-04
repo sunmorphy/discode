@@ -1,4 +1,4 @@
-import { getProfile, login, putAccessToken } from "../../utils/api";
+import api from "../../utils/api";
 import {
   hideLoadingActionCreator,
   showLoadingActionCreator,
@@ -32,9 +32,9 @@ function asyncSetAuthUser({ email, password }) {
     dispatch(showLoadingActionCreator());
 
     try {
-      const token = await login({ email, password });
-      putAccessToken(token);
-      const authUser = await getProfile();
+      const token = await api.login({ email, password });
+      api.putAccessToken(token);
+      const authUser = await api.getProfile();
 
       dispatch(setAuthUserActionCreator(authUser));
     } catch (error) {
@@ -48,7 +48,7 @@ function asyncSetAuthUser({ email, password }) {
 function asyncUnsetAuthUser() {
   return (dispatch) => {
     dispatch(unsetAuthUserActionCreator());
-    putAccessToken("");
+    api.putAccessToken("");
   };
 }
 

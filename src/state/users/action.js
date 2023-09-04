@@ -1,4 +1,4 @@
-import { register } from "../../utils/api";
+import api from "../../utils/api";
 import {
   hideLoadingActionCreator,
   showLoadingActionCreator,
@@ -21,7 +21,7 @@ function asyncRegisterUser({ name, email, password }) {
   return async (dispatch) => {
     dispatch(showLoadingActionCreator());
     try {
-      await register({ name, email, password });
+      await api.register({ name, email, password });
     } catch (error) {
       throw error.message;
     } finally {

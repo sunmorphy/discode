@@ -1,4 +1,4 @@
-import { getProfile } from "../../utils/api";
+import api from "../../utils/api";
 import { setAuthUserActionCreator } from "../auth/action";
 
 const PreloadActionType = {
@@ -17,7 +17,7 @@ function setIsPreloadActionCreator(isPreload) {
 function asyncPreloadProcess() {
   return async (dispatch) => {
     try {
-      const authUser = await getProfile();
+      const authUser = await api.getProfile();
       dispatch(setAuthUserActionCreator(authUser));
     } catch (error) {
       dispatch(setAuthUserActionCreator(null));

@@ -1,10 +1,4 @@
-import {
-  createComment,
-  getDetailThread,
-  voteThread,
-  voteThreadComment,
-  VoteType,
-} from "../../utils/api";
+import api from "../../utils/api";
 import {
   hideLoadingActionCreator,
   showLoadingActionCreator,
@@ -72,7 +66,7 @@ function asyncReceiveThreadDetail(threadId) {
     dispatch(showLoadingActionCreator());
     dispatch(clearThreadDetailActionCreator());
     try {
-      const detailThread = await getDetailThread({ threadId });
+      const detailThread = await api.getDetailThread({ threadId });
       dispatch(receiveThreadDetailActionCreator(detailThread));
     } catch (error) {
       throw error.message;
@@ -85,12 +79,12 @@ function asyncReceiveThreadDetail(threadId) {
 function asyncToggleVoteThreadDetail({ isUpVote }) {
   return async (dispatch, getState) => {
     const { authUser, detailThread } = getState();
-    let voteType = VoteType.UP_VOTE;
+    let voteType = api.VoteType.UP_VOTE;
 
     if (isUpVote === null) {
-      voteType = VoteType.NEUTRALIZE_VOTE;
+      voteType = api.VoteType.NEUTRALIZE_VOTE;
     } else if (!isUpVote) {
-      voteType = VoteType.DOWN_VOTE;
+      voteType = api.VoteType.DOWN_VOTE;
     }
 
     dispatch(
@@ -101,7 +95,7 @@ function asyncToggleVoteThreadDetail({ isUpVote }) {
     );
 
     try {
-      await voteThread({
+      await api.voteThread({
         threadId: detailThread.id,
         voteType,
       });
@@ -120,12 +114,12 @@ function asyncToggleVoteThreadDetail({ isUpVote }) {
 function asyncToggleVoteCommentThreadDetail({ commentId, isUpVote }) {
   return async (dispatch, getState) => {
     const { authUser, detailThread } = getState();
-    let voteType = VoteType.UP_VOTE;
+    let voteType = api.VoteType.UP_VOTE;
 
     if (isUpVote === null) {
-      voteType = VoteType.NEUTRALIZE_VOTE;
+      voteType = api.VoteType.NEUTRALIZE_VOTE;
     } else if (!isUpVote) {
-      voteType = VoteType.DOWN_VOTE;
+      voteType = api.VoteType.DOWN_VOTE;
     }
 
     dispatch(
@@ -137,7 +131,7 @@ function asyncToggleVoteCommentThreadDetail({ commentId, isUpVote }) {
     );
 
     try {
-      await voteThreadComment({
+      await api.voteThreadComment({
         threadId: detailThread.id,
         commentId,
         voteType,
@@ -159,7 +153,7 @@ function asyncAddCommentThreadDetail({ threadId, content }) {
   return async (dispatch) => {
     dispatch(showLoadingActionCreator());
     try {
-      const comment = await createComment({
+      const comment = await api.createComment({
         threadId,
         content,
       });
@@ -178,6 +172,7 @@ export {
   clearThreadDetailActionCreator,
   toggleVoteThreadDetailActionCreator,
   toggleVoteCommentThreadDetailActionCreator,
+  addCommentThreadDetailActionCreator,
   asyncReceiveThreadDetail,
   asyncToggleVoteThreadDetail,
   asyncToggleVoteCommentThreadDetail,
