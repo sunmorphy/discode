@@ -28,7 +28,6 @@ function App() {
   } = useSelector((states) => states);
 
   useEffect(() => {
-    console.log(loading);
     dispatch(asyncPreloadProcess());
     setShowLoading(loading);
   }, [loading, dispatch]);
