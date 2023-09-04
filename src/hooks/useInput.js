@@ -7,5 +7,5 @@ export default function useInput(defaultValue = "") {
     setValue(event.target.value);
   };
 
-  return [value, onValueChange];
+  return [value];
 }
