@@ -20,5 +20,10 @@
     "react-hooks",
     "cypress"
   ],
-  "rules": {}
+  "rules": {},
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }
